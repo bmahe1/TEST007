@@ -11,9 +11,9 @@ resources:
 variables:
 
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'Docker-containerregistry'
+  dockerRegistryServiceConnection: 'container1'
   imageRepository: 'testfouridspoc'
-  containerRegistry: 'testfourids.azurecr.io'
+  containerRegistry: 'mahesh.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
   imagePullSecret: 'testfourids-auth'
@@ -98,7 +98,7 @@ stages:
           - task: KubernetesManifest@0
             displayName: Create imagePullSecret
             inputs:
-              kubernetesServiceConnection: 'K8S connection'
+              kubernetesServiceConnection: 'aks-service-connection'
               action: createSecret
               secretName: $(imagePullSecret)
               dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
@@ -106,7 +106,7 @@ stages:
           - task: KubernetesManifest@0
             displayName: Deploy to Kubernetes cluster
             inputs:
-              kubernetesServiceConnection: 'K8S connection'
+              kubernetesServiceConnection: 'aks-service-connection'
               action: deploy
               manifests: |
                 $(Pipeline.Workspace)/manifests/deployment.yaml
