@@ -1,49 +1,40 @@
-# Deploy to Azure Kubernetes Service
-# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
- 
+# Azure DevOps Pipeline for Build + Scan + Push + Deploy to AKS
+
 trigger:
 - Backend007
- 
+
 resources:
 - repo: self
- 
+
 variables:
- 
-  # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: 'container1'
   imageRepository: 'test'
   containerRegistry: 'mahesh.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
   imagePullSecret: 'test-auth'
- 
-  # Agent VM image name
   vmImageName: 'ubuntu-latest'
- 
- 
+
 stages:
 - stage: Build
-  displayName: Build and push stage
+  displayName: "Build and Push Stage"
   jobs:
   - job: Build
-    displayName: Build
+    displayName: "Build"
     pool:
       vmImage: $(vmImageName)
     steps:
+
+    # Maven Build
     - task: Maven@4
+      displayName: "Build Maven Project"
       inputs:
         mavenPomFile: 'pom.xml'
         goals: 'clean install -DskipTests=true'
-        publishJUnitResults: true
-        testResultsFiles: '**/surefire-reports/TEST-*.xml'
-        javaHomeOption: 'JDKVersion'
-        mavenVersionOption: 'Default'
-        mavenAuthenticateFeed: false
-        effectivePomSkip: false
-        sonarQubeRunAnalysis: false
+
+    # Build Docker Image
     - task: Docker@2
-      displayName: Build a Docker image 
+      displayName: "Build Docker Image"
       inputs:
         command: build
         repository: $(containerRegistry)/$(imageRepository)
@@ -51,63 +42,74 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+
+    # Login to ACR for Trivy Access
+    - task: Docker@2
+      displayName: "Login to ACR"
+      inputs:
+        command: login
+        containerRegistry: $(dockerRegistryServiceConnection)
+
+    # Install Trivy
     - task: Bash@3
-      displayName: "Install Trivy"
+      displayName: "Install Trivy Scanner"
       inputs:
         targetType: inline
         script: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
- # Run Trivy Scan
+
+    # Security Scan
     - task: Bash@3
       displayName: "Run Trivy Scan"
       inputs:
         targetType: inline
         script: |
           ./bin/trivy image --severity HIGH,CRITICAL,MEDIUM --ignore-unfixed $(containerRegistry)/$(imageRepository):$(tag)
+
+    # Push Docker Image to ACR
     - task: Docker@2
-      displayName: Build and push an image to ACR
+      displayName: "Push Docker Image to ACR"
       inputs:
-        command: buildAndPush
-        containerRegistry: $(dockerRegistryServiceConnection)
+        command: push
         repository: $(containerRegistry)/$(imageRepository)
-        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
 
-
- 
+    # Upload K8S Manifests as Artifact
     - upload: manifests
       artifact: manifests
- 
+
+
+# DEPLOY STAGE
 - stage: Deploy
-  displayName: Deploy stage
+  displayName: "Deploy to AKS"
   dependsOn: Build
- 
   jobs:
   - deployment: Deploy
-    displayName: Deploy
+    environment: "TestFourids"
     pool:
       vmImage: $(vmImageName)
-    environment: 'TestFourids'
     strategy:
       runOnce:
         deploy:
           steps:
           - task: DownloadPipelineArtifact@2
+            displayName: "Download Manifests"
             inputs:
               artifact: manifests
               path: $(Pipeline.Workspace)/manifests
- 
+
           - task: KubernetesManifest@0
-            displayName: Create imagePullSecret
+            displayName: "Create imagePullSecret"
             inputs:
               kubernetesServiceConnection: 'aks-service-connection'
               action: createSecret
               secretName: $(imagePullSecret)
               dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
- 
+
           - task: KubernetesManifest@0
-            displayName: Deploy to Kubernetes cluster
+            displayName: "Deploy to AKS"
             inputs:
               kubernetesServiceConnection: 'aks-service-connection'
               action: deploy
