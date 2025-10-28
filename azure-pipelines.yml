@@ -46,7 +46,7 @@ stages:
       displayName: Build a Docker image 
       inputs:
         command: build
-        repository: $(imageRepository)
+        repository: $(containerRegistry)/$(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
@@ -68,11 +68,12 @@ stages:
       displayName: Build and push an image to container registry
       inputs:
         command: buildAndPush
-        repository: $(imageRepository)
+        repository: $(containerRegistry)/$(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+
  
     - upload: manifests
       artifact: manifests
