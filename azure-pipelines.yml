@@ -9,7 +9,7 @@ resources:
 variables:
   dockerRegistryServiceConnection: 'container123'
   imageRepository: 'test'
-  containerRegistry: 'endregistry .azurecr.io'
+  containerRegistry: 'endregistry.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
   imagePullSecret: 'test-auth'
