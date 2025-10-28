@@ -99,7 +99,7 @@ stages:
           - task: KubernetesManifest@0
             displayName: Create imagePullSecret
             inputs:
-              kubernetesServiceConnection: 'K8S connection'
+              kubernetesServiceConnection: 'aks-service-connection'
               action: createSecret
               secretName: $(imagePullSecret)
               dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
@@ -107,7 +107,7 @@ stages:
           - task: KubernetesManifest@0
             displayName: Deploy to Kubernetes cluster
             inputs:
-              kubernetesServiceConnection: 'K8S connection'
+              kubernetesServiceConnection: 'aks-service-connection'
               action: deploy
               manifests: |
                 $(Pipeline.Workspace)/manifests/configmap.yaml
