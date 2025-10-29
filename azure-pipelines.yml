@@ -1,5 +1,3 @@
-# Azure DevOps Pipeline – Build & Push to ACR Only
-
 trigger:
 - Backend007
 
@@ -8,10 +6,10 @@ pool:
 
 variables:
   containerRegistry: 'maheshendcontainer.azurecr.io'
-  dockerRegistryServiceConnection: 'maheshendcontainer'
+  dockerRegistryServiceConnection: 'maheshendc'
   imageRepository: 'test'
   tag: '$(Build.BuildId)'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  dockerfilePath: 'Dockerfile'
 
 steps:
 
