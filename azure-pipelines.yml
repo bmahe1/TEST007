@@ -1,44 +1,39 @@
-# Azure DevOps Pipeline – Build & Push to ACR Only
-
 trigger:
-- Backend007
+- main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: ubuntu-latest
 
 variables:
-  containerRegistry: 'maheshendcontainer.azurecr.io'
   dockerRegistryServiceConnection: 'maheshendcontainer'
-  imageRepository: 'test'
+  imageName: 'test'
+  registryName: 'maheshendcontainer.azurecr.io'
   tag: '$(Build.BuildId)'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
 
 steps:
-
-# Build Maven App
-- task: Maven@4
-  displayName: "Maven Build"
+# Login to ACR
+- task: Docker@2
+  displayName: "Login to ACR"
   inputs:
-    mavenPomFile: 'pom.xml'
-    goals: 'clean install -DskipTests=true'
+    command: login
+    containerRegistry: $(dockerRegistryServiceConnection)
 
-# Build Docker Image
+# Build Docker image
 - task: Docker@2
   displayName: "Build Docker Image"
   inputs:
     command: build
-    containerRegistry: $(dockerRegistryServiceConnection)
-    repository: $(imageRepository)
-    dockerfile: $(dockerfilePath)
+    repository: $(registryName)/$(imageName)
+    Dockerfile: '**/Dockerfile'
     tags: |
       $(tag)
 
-# Push Image to ACR
+# Push Docker image to ACR
 - task: Docker@2
   displayName: "Push Docker Image to ACR"
   inputs:
     command: push
     containerRegistry: $(dockerRegistryServiceConnection)
-    repository: $(imageRepository)
+    repository: $(registryName)/$(imageName)
     tags: |
       $(tag)
