@@ -5,8 +5,8 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  containerRegistry: 'maheshendcontainer.azurecr.io'
-  dockerRegistryServiceConnection: 'endcontain'
+  containerRegistry: 'endregistry.azurecr.io'
+  dockerRegistryServiceConnection: 'container123'
   imageRepository: 'test'
   tag: '$(Build.BuildId)'
   dockerfilePath: 'Dockerfile'
