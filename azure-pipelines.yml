@@ -1,39 +1,42 @@
 trigger:
-- main
+- Backend007
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 variables:
+  containerRegistry: 'maheshendcontainer.azurecr.io'
   dockerRegistryServiceConnection: 'maheshendcontainer'
-  imageName: 'test'
-  registryName: 'maheshendcontainer.azurecr.io'
+  imageRepository: 'test'
   tag: '$(Build.BuildId)'
+  dockerfilePath: 'Dockerfile'
 
 steps:
-# Login to ACR
-- task: Docker@2
-  displayName: "Login to ACR"
-  inputs:
-    command: login
-    containerRegistry: $(dockerRegistryServiceConnection)
 
-# Build Docker image
+# Build Maven App
+- task: Maven@4
+  displayName: "Maven Build"
+  inputs:
+    mavenPomFile: 'pom.xml'
+    goals: 'clean install -DskipTests=true'
+
+# Build Docker Image
 - task: Docker@2
   displayName: "Build Docker Image"
   inputs:
     command: build
-    repository: $(registryName)/$(imageName)
-    Dockerfile: '**/Dockerfile'
+    containerRegistry: $(dockerRegistryServiceConnection)
+    repository: $(imageRepository)
+    dockerfile: $(dockerfilePath)
     tags: |
       $(tag)
 
-# Push Docker image to ACR
+# Push Image to ACR
 - task: Docker@2
   displayName: "Push Docker Image to ACR"
   inputs:
     command: push
     containerRegistry: $(dockerRegistryServiceConnection)
-    repository: $(registryName)/$(imageName)
+    repository: $(imageRepository)
     tags: |
       $(tag)
