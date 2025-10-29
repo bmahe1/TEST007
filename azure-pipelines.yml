@@ -8,7 +8,7 @@ pool:
 
 variables:
   containerRegistry: 'maheshendcontainer.azurecr.io'
-  dockerRegistryServiceConnection: 'container123'
+  dockerRegistryServiceConnection: 'maheshendcontainer'
   imageRepository: 'test'
   tag: '$(Build.BuildId)'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
