@@ -5,8 +5,8 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  containerRegistry: 'indiarg1.azurecr.io'
-  dockerRegistryServiceConnection: 'azure-registry'
+  containerRegistry: 'cnfront.azurecr.io'
+  dockerRegistryServiceConnection: 'cnfront1'
   imageRepository: 'test'
   tag: '$(Build.BuildId)'
   dockerfilePath: 'Dockerfile'
