@@ -16,7 +16,7 @@ spec:
         app: app-tms
     spec:
       containers:
-      - name: test
+      - name: nginx
         image: myacr.azurecr.io/app-tms:latest   # Pipeline will replace tag
         imagePullPolicy: Always
         ports:
