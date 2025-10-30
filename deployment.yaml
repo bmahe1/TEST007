@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app-tms
-  namespace: test
+  namespace: nginx
   labels:
     app: app-tms
 spec:
@@ -16,8 +16,8 @@ spec:
         app: app-tms
     spec:
       containers:
-      - name: nginx
-        image: myacr.azurecr.io/app-tms:latest   # Pipeline will replace tag
+      - name: testfouridspoc
+        image: cnfront.azurecr.io/testfouridspoc:latest   # Pipeline will replace tag
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
