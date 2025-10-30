@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app-tms
-  namespace: test
+  namespace: nginx
   labels:
     app: app-tms
 spec:
@@ -32,5 +32,6 @@ spec:
           - name: JAVA_TOOL_OPTIONS
 
             value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:MinRAMPercentage=50.0"
+
 
 
