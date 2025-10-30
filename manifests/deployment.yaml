@@ -16,8 +16,8 @@ spec:
         app: app-tms
     spec:
       containers:
-      - name: nginx
-        image: testfourids.azurecr.io/testfouridspoc:latest   # Pipeline will replace tag
+      - name: cnfront
+        image: cnfront.azurecr.io/testfouridspoc:latest   # Pipeline will replace tag
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -32,6 +32,7 @@ spec:
           - name: JAVA_TOOL_OPTIONS
 
             value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:MinRAMPercentage=50.0"
+
 
 
 
